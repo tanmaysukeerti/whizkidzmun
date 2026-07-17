@@ -1,0 +1,89 @@
+@import url('https://fonts.googleapis.com/css2?family=Anton&family=Condiment&family=Inter:wght@400;600;900&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", sans-serif;
+  --font-grotesk: "Anton", "Arial Black", sans-serif;
+  --font-condiment: "Condiment", cursive;
+  --font-mono: "Courier New", Courier, monospace;
+}
+
+body {
+  font-family: var(--font-sans);
+}
+
+.grid-bg {
+  position: absolute;
+  inset: 0;
+  background-image: linear-gradient(rgba(239, 244, 255, 0.2) 1px, transparent 1px), linear-gradient(90deg, rgba(239, 244, 255, 0.2) 1px, transparent 1px);
+  background-size: 40px 40px;
+  opacity: 0.1;
+  pointer-events: none;
+}
+
+.scanline {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(rgba(1, 8, 40, 0) 50%, rgba(1, 8, 40, 0.2) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.02), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.02));
+  background-size: 100% 4px, 3px 100%;
+  pointer-events: none;
+  z-index: 50;
+}
+
+/* Projector idle: hide the cursor everywhere until the mouse moves again. */
+.cursor-hidden,
+.cursor-hidden * {
+  cursor: none !important;
+}
+
+/* New crisis update: red alert wash pulsing over the whole screen. */
+.crisis-flash {
+  animation: crisis-flash 0.7s ease-out 3;
+}
+
+@keyframes crisis-flash {
+  0% {
+    background: rgba(255, 51, 51, 0.18);
+    box-shadow: inset 0 0 140px rgba(255, 51, 51, 0.7);
+    opacity: 1;
+  }
+  100% {
+    background: rgba(255, 51, 51, 0);
+    box-shadow: inset 0 0 140px rgba(255, 51, 51, 0);
+    opacity: 0;
+  }
+}
+
+/* Newest crisis feed item slamming into place. */
+.crisis-slam {
+  animation: crisis-slam 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@keyframes crisis-slam {
+  0% {
+    transform: translateY(-8px) scale(1.04);
+    box-shadow: 0 0 30px rgba(255, 153, 0, 0.6);
+  }
+  100% {
+    transform: translateY(0) scale(1);
+    box-shadow: 0 0 0 rgba(255, 153, 0, 0);
+  }
+}
+
+/* Timer-expiry flash: a green wash + inset ring that pulses twice then fades. */
+.timer-flash {
+  animation: timer-flash 0.9s ease-out 2;
+}
+
+@keyframes timer-flash {
+  0% {
+    background: radial-gradient(circle at center, rgba(111, 255, 0, 0.25) 0%, transparent 70%);
+    box-shadow: inset 0 0 120px rgba(111, 255, 0, 0.6);
+    opacity: 1;
+  }
+  100% {
+    background: radial-gradient(circle at center, rgba(111, 255, 0, 0) 0%, transparent 70%);
+    box-shadow: inset 0 0 120px rgba(111, 255, 0, 0);
+    opacity: 0;
+  }
+}

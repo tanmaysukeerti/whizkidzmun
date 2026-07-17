@@ -1,0 +1,21 @@
+# Render Blueprint — deploys the fullstack app as a single free web service.
+# One persistent Node process serves the API, the SSE live-sync stream, and the
+# built frontend, so the instant real-time sync works unchanged.
+#
+# After creating the service, set DATABASE_URL in the Render dashboard to a free
+# Postgres connection string (Neon or Supabase). Without it the app still runs
+# but state is in-memory and resets whenever the free instance sleeps/restarts.
+services:
+  - type: web
+    name: whizkidz-mun
+    runtime: node
+    plan: free
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /api/state
+    autoDeployTrigger: commit
+    envVars:
+      - key: NODE_VERSION
+        value: "22"
+      - key: DATABASE_URL
+        sync: false
