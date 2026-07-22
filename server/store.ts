@@ -338,6 +338,11 @@ export function addDelegate(name: string): void {
   const clean = name.trim().toUpperCase();
   if (!clean) return;
   state.delegates.push({ id: id(), name: clean, status: 'ABSENT' });
+  // Give the new delegate a slot in the round-robin order too.
+  if (!state.session.roundRobin.roster.includes(clean)) {
+    state.session.roundRobin.roster.push(clean);
+    persistSession();
+  }
   persistDelegates();
   emit();
 }
@@ -354,7 +359,12 @@ export function setRoster(names: string[]): void {
   }
   if (roster.length === 0) return;
   state.delegates = roster;
+  // The round-robin speaking order follows the committee roster. Without this
+  // the view would keep showing the seeded sample countries forever, since
+  // session.roundRobin.roster is stored separately from the delegate list.
+  state.session.roundRobin = { activeIndex: 0, roster: roster.map((d) => d.name) };
   persistDelegates();
+  persistSession();
   emit();
 }
 
@@ -367,7 +377,19 @@ export function setCommittee(fields: { name?: string; topic?: string }): void {
 }
 
 export function removeDelegate(delegateId: string): void {
+  const removed = state.delegates.find((d) => d.id === delegateId);
   state.delegates = state.delegates.filter((d) => d.id !== delegateId);
+  // Drop them from the speaking order too, keeping the active pointer valid.
+  if (removed) {
+    const rr = state.session.roundRobin;
+    const idx = rr.roster.indexOf(removed.name);
+    if (idx !== -1) {
+      rr.roster.splice(idx, 1);
+      if (rr.activeIndex > idx) rr.activeIndex -= 1;
+      rr.activeIndex = Math.max(0, Math.min(rr.activeIndex, rr.roster.length - 1));
+      persistSession();
+    }
+  }
   persistDelegates();
   emit();
 }

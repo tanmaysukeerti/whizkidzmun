@@ -7,6 +7,7 @@
 import 'dotenv/config';
 import express from 'express';
 import fs from 'node:fs/promises';
+import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createPersistence } from './persistence.ts';
@@ -58,12 +59,33 @@ async function main() {
     });
   }
 
-  app.listen(port, () => {
+  // Bind 0.0.0.0 so phones/laptops on the same Wi-Fi can reach the dais tool.
+  app.listen(port, '0.0.0.0', () => {
     console.log(
-      `\x1b[36m[whizkidz.mun] ${isProd ? 'production' : 'dev'} server on ` +
-        `http://localhost:${port}\x1b[0m`,
+      `\x1b[36m[whizkidz.mun] ${isProd ? 'production' : 'dev'} server\x1b[0m`,
+    );
+    console.log(`  • This device:   http://localhost:${port}`);
+    for (const url of lanUrls(port)) {
+      console.log(`  • Other devices: \x1b[36m${url}\x1b[0m`);
+    }
+    console.log(
+      '  (other devices must be on the same network; open the Windows Firewall ' +
+        `for Node/port ${port} if they can't connect)`,
     );
   });
+}
+
+/** Every non-internal IPv4 address, as clickable http URLs. */
+function lanUrls(port: number): string[] {
+  const urls: string[] = [];
+  for (const ifaces of Object.values(os.networkInterfaces())) {
+    for (const net of ifaces ?? []) {
+      if (net.family === 'IPv4' && !net.internal) {
+        urls.push(`http://${net.address}:${port}`);
+      }
+    }
+  }
+  return urls;
 }
 
 main().catch((err) => {

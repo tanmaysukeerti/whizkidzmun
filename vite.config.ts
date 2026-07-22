@@ -12,6 +12,11 @@ export default defineConfig(() => {
       },
     },
     server: {
+      // Listen on the LAN so other devices (phones, the projector laptop) can
+      // reach the dev server, and accept any Host header — Vite's dev host-check
+      // otherwise rejects access by LAN IP or hostname.
+      host: true,
+      allowedHosts: true as const,
       // HMR is disabled in AI Studio via DISABLE_HMR env var.
       // Do not modifyâfile watching is disabled to prevent flickering during agent edits.
       hmr: process.env.DISABLE_HMR !== 'true',
